@@ -17,5 +17,8 @@ public class ClassInfo {
     private String className;
     private String classComment;
     private List<FieldInfo> fieldList;
-
+    private String idColumnName;
+    private String idFieldName;
+    private String schema;
+    private String fullTableName;
 }

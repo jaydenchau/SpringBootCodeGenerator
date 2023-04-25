@@ -28,6 +28,40 @@
   ]
 },
   {
+  "group": "B2B",
+  "templates": [{
+    "id": "111",
+    "name": "b2b-controller",
+    "description": "b2b-controller"
+  },
+    {
+      "id": "112",
+      "name": "b2b-service",
+      "description": "b2b-service"
+    },
+    {
+      "id": "113",
+      "name": "b2b-service_impl",
+      "description": "b2b-service_impl"
+    },
+    {
+      "id": "114",
+      "name": "b2b-mapper",
+      "description": "b2b-mapper"
+    },
+    {
+      "id": "115",
+      "name": "b2b-mybatis",
+      "description": "b2b-mybatis"
+    },
+    {
+      "id": "116",
+      "name": "b2b-model",
+      "description": "b2b-model"
+    }
+  ]
+},
+  {
     "group": "mybatis",
     "templates": [{
       "id": "20",

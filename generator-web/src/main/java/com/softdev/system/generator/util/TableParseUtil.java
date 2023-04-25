@@ -34,6 +34,8 @@ public class TableParseUtil {
     public static ClassInfo processTableIntoClassInfo(ParamInfo paramInfo)
             throws IOException {
         //process the param
+        String idColumnName = "";
+        String idFieldName = "";
         String tableSql = paramInfo.getTableSql();
         String nameCaseType = MapUtil.getString(paramInfo.getOptions(),"nameCaseType");
         Boolean isPackageType = MapUtil.getBoolean(paramInfo.getOptions(),"isPackageType");
@@ -46,6 +48,7 @@ public class TableParseUtil {
         //deal with java string copy \n"
         tableSql = tableSql.trim().replaceAll("\\\\n`", "").replaceAll("\\+", "").replaceAll("``", "`").replaceAll("\\\\", "");
         // table Name
+        String schema = null;
         String tableName = null;
         if (tableSql.contains("TABLE") && tableSql.contains("(")) {
             tableName = tableSql.substring(tableSql.indexOf("TABLE") + 5, tableSql.indexOf("("));
@@ -71,6 +74,7 @@ public class TableParseUtil {
             tableName = tableName.substring(tableName.indexOf("`.`") + 3);
         } else if (tableName.contains(".")) {
             //优化对likeu.members这种命名的支持
+            schema = tableName.split("\\.")[0];
             tableName = tableName.substring(tableName.indexOf(".") + 1);
         }
         String originTableName = tableName;
@@ -149,7 +153,8 @@ public class TableParseUtil {
         if (fieldLineList.length > 0) {
             int i = 0;
             //i为了解决primary key关键字出现的地方，出现在前3行，一般和id有关
-            for (String columnLine : fieldLineList) {
+            for (int j = 0; j < fieldLineList.length; j++) {
+                String columnLine = fieldLineList[j];
                 i++;
                 columnLine = columnLine.replaceAll("\n", "").replaceAll("\t", "").trim();
                 // `userid` int(11) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
@@ -175,6 +180,9 @@ public class TableParseUtil {
                     //如果遇到username varchar(65) default '' not null,这种情况，判断第一个空格是否比第一个引号前
                     try {
                         columnName = columnLine.substring(0, columnLine.indexOf(" "));
+                        if (j == 0) {
+                            idColumnName = columnName;
+                        }
                     } catch (StringIndexOutOfBoundsException e) {
                         System.out.println("err happened: " + columnLine);
                         throw e;
@@ -194,6 +202,9 @@ public class TableParseUtil {
                         fieldName = StringUtils.lowerCaseFirst(columnName.toUpperCase());
                     } else {
                         fieldName = columnName;
+                    }
+                    if (j == 0) {
+                        idFieldName = fieldName;
                     }
                     columnLine = columnLine.substring(columnLine.indexOf("`") + 1).trim();
                     String mysqlType = columnLine.split("\\s+")[1];
@@ -271,6 +282,14 @@ public class TableParseUtil {
         codeJavaInfo.setClassComment(classComment);
         codeJavaInfo.setFieldList(fieldList);
         codeJavaInfo.setOriginTableName(originTableName);
+        codeJavaInfo.setIdColumnName(idColumnName);
+        codeJavaInfo.setIdFieldName(idFieldName);
+        codeJavaInfo.setSchema(schema);
+        if (org.apache.commons.lang3.StringUtils.isEmpty(schema)) {
+            codeJavaInfo.setFullTableName(originTableName);
+        } else {
+            codeJavaInfo.setFullTableName(schema + "." + originTableName);
+        }
 
         return codeJavaInfo;
     }
